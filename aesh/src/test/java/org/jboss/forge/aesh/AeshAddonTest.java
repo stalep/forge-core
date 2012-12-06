@@ -19,15 +19,23 @@ import org.junit.runner.RunWith;
  * @author <a href="mailto:lincolnbaxter@gmail.com">Lincoln Baxter, III</a>
  */
 @RunWith(Arquillian.class)
-@Ignore("It locks up the UI while running the tests")
+//@Ignore("It locks up the UI while running the tests")
 public class AeshAddonTest
 {
+
+    public AeshAddonTest() {
+        System.out.println("constructor test");
+        ForgeSettings.getInstance().setTest(true);
+    }
+
    @Deployment
    public static ForgeArchive getDeployment()
    {
+      ForgeSettings.getInstance().setTest(true);
       ForgeArchive archive = ShrinkWrap
                .create(ForgeArchive.class)
                .addClasses(AeshShell.class)
+              .addClass(ForgeSettings.class)
                .addAsLibraries(
                         Maven.resolver().loadPomFromFile("pom.xml").resolve("org.jboss.aesh:aesh:0.22")
                                  .withTransitivity().asFile())
@@ -43,6 +51,7 @@ public class AeshAddonTest
    @Test
    public void testContainerInjection()
    {
+       System.out.println("first in test");
       Assert.assertNotNull(simple);
    }
 

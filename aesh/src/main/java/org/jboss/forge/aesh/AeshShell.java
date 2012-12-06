@@ -30,6 +30,7 @@ import org.jboss.forge.container.services.Remote;
 @Remote
 public class AeshShell
 {
+   private Console console;
 
    @Inject
    private ContainerControl containerControl;
@@ -42,7 +43,15 @@ public class AeshShell
 
       setup();
 
-      Console console = new Console();
+       if(ForgeSettings.getInstance().isTest()) {
+           console = new Console();
+       }
+       else {
+
+       }
+   }
+
+   private void runShell() throws IOException {
       String prompt = "[forge-2.0]$ ";
 
       ConsoleOutput line;
@@ -68,6 +77,7 @@ public class AeshShell
       {
       }
    }
+
 
    private void listServices(Console console) throws IOException
    {
