@@ -11,7 +11,6 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,17 +24,16 @@ public class AeshAddonTest
 
     public AeshAddonTest() {
         System.out.println("constructor test");
-        ForgeSettings.getInstance().setTest(true);
+        aeshProducer.getSettings().setName("FORGE");
     }
 
    @Deployment
    public static ForgeArchive getDeployment()
    {
-      ForgeSettings.getInstance().setTest(true);
       ForgeArchive archive = ShrinkWrap
                .create(ForgeArchive.class)
                .addClasses(AeshShell.class)
-              .addClass(ForgeSettings.class)
+              .addClass(AeshProducer.class)
                .addAsLibraries(
                         Maven.resolver().loadPomFromFile("pom.xml").resolve("org.jboss.aesh:aesh:0.22")
                                  .withTransitivity().asFile())
@@ -47,6 +45,9 @@ public class AeshAddonTest
 
    @Inject
    private AeshShell simple;
+
+    @Inject
+    private AeshProducer aeshProducer;
 
    @Test
    public void testContainerInjection()

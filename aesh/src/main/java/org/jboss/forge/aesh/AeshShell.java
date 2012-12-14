@@ -38,17 +38,14 @@ public class AeshShell
    @Inject
    private AddonRegistry registry;
 
+    @Inject
+    private AeshProducer producer;
+
    public void observe(@Observes Startup startup) throws IOException
    {
-
-      setup();
-
-       if(ForgeSettings.getInstance().isTest()) {
-           console = new Console();
-       }
-       else {
-
-       }
+       setup();
+       console = new Console();
+       System.out.println("Name: "+producer.getSettings().getName());
    }
 
    private void runShell() throws IOException {
