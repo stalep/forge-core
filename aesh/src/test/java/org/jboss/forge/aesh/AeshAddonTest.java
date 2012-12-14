@@ -2,6 +2,7 @@ package org.jboss.forge.aesh;
 
 import javax.inject.Inject;
 
+import org.jboss.aesh.console.settings.Settings;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.forge.arquillian.archive.ForgeArchive;
@@ -11,6 +12,7 @@ import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,7 +26,11 @@ public class AeshAddonTest
 
     public AeshAddonTest() {
         System.out.println("constructor test");
-        aeshProducer.getSettings().setName("FORGE");
+    }
+
+    @Before
+    public void setUpAesh() {
+        Settings.getInstance().setName("FORGE");
     }
 
    @Deployment
