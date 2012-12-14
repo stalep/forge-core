@@ -39,13 +39,13 @@ public class AeshShell
    private AddonRegistry registry;
 
     @Inject
-    private AeshProducer producer;
+    private Settings settings;
 
    public void observe(@Observes Startup startup) throws IOException
    {
        setup();
        console = new Console();
-       System.out.println("Name: "+producer.getSettings().getName());
+       System.out.println("Name: "+settings.getName());
    }
 
    private void runShell() throws IOException {

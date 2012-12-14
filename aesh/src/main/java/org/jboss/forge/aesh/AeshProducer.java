@@ -24,12 +24,7 @@ public class AeshProducer {
     @Typed(Settings.class)
     @Singleton
     public Settings getSettings() {
-        return settings;
+        return Settings.getInstance();
     }
-
-    public void setSettings(Settings settings) {
-        this.settings = settings;
-    }
-
 
 }
