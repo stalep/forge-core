@@ -6,48 +6,31 @@
  */
 package org.jboss.forge.aesh;
 
-import org.jboss.aesh.cl.CommandLine;
-import org.jboss.aesh.cl.CommandLineParser;
-import org.jboss.aesh.cl.ParserBuilder;
-import org.jboss.aesh.cl.ParameterBuilder;
-import org.jboss.aesh.complete.CompleteOperation;
-import org.jboss.aesh.console.ConsoleOutput;
-import org.jboss.forge.aesh.commands.ForgeCommand;
+import org.jboss.aesh.cl.Parameter;
+import org.jboss.forge.container.services.Remote;
+import org.jboss.forge.ui.Result;
+import org.jboss.forge.ui.UICommand;
+import org.jboss.forge.ui.UIContext;
+import org.jboss.forge.ui.UIValidationContext;
 
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:stale.pedersen@jboss.org">Ståle W. Pedersen</a>
  */
-public class FooCommand extends ForgeCommand {
+@Parameter(name="foo")
+@Remote
+public class FooCommand implements UICommand {
 
-    private CommandLineParser parser;
-
-    public FooCommand() {
-        createParsers();
+    @Override
+    public void initializeUI(UIContext context) throws Exception {
     }
 
     @Override
-    public CommandLine parse(String line) throws IllegalArgumentException {
-        return parser.parse(line);
+    public void validate(UIValidationContext context) {
     }
 
     @Override
-    public void run(ConsoleOutput consoleOutput, CommandLine commandLine) throws IOException {
-        getConsole().pushToStdOut("boo\n");
+    public Result execute(UIContext context) throws Exception {
+        return Result.success("boo");
     }
-
-    @Override
-    public void complete(CompleteOperation completeOperation) {
-    }
-
-    private void createParsers() {
-        ParameterBuilder foo = new ParameterBuilder().name("foo");
-        ParameterBuilder bar = new ParameterBuilder().name("bar");
-        ParserBuilder builder = new ParserBuilder(foo.generateParameter());
-        builder.addParameter(bar.generateParameter());
-
-        parser = builder.generateParser();
-    }
-
 }

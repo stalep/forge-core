@@ -8,12 +8,12 @@ package org.jboss.forge.aesh.commands;
 
 import org.jboss.aesh.cl.CommandLine;
 import org.jboss.aesh.cl.CommandLineParser;
-import org.jboss.aesh.cl.OptionBuilder;
 import org.jboss.aesh.cl.ParameterBuilder;
 import org.jboss.aesh.cl.ParserBuilder;
 import org.jboss.aesh.complete.CompleteOperation;
 import org.jboss.aesh.console.Console;
 import org.jboss.aesh.console.ConsoleOutput;
+import org.jboss.forge.aesh.ShellCommand;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,28 +22,28 @@ import java.util.List;
 /**
  * @author <a href="mailto:stale.pedersen@jboss.org">Ståle W. Pedersen</a>
  */
-public class StopCommand extends ForgeCommand {
+public class StopCommand { //extends ShellCommand {
 
     private CommandLineParser parser;
 
     private List<String> names = new ArrayList<String>();
 
     public StopCommand(Console console) {
-        setConsole(console);
+        //setConsole(console);
         names.add("exit");
         names.add("quit");
         createParsers();
     }
 
-    @Override
+    //@Override
     public CommandLine parse(String line) throws IllegalArgumentException {
         return parser.parse(line);
     }
 
-    @Override
+    //@Override
     public void run(ConsoleOutput consoleOutput, CommandLine commandLine) throws IOException {
         //not doing much other than stopping the console
-        getConsole().stop();
+        //getConsole().stop();
     }
 
     public void complete(CompleteOperation completeOperation) {

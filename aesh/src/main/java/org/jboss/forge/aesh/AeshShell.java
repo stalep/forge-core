@@ -19,7 +19,6 @@ import org.jboss.aesh.console.Console;
 import org.jboss.aesh.console.ConsoleOutput;
 import org.jboss.aesh.console.settings.Settings;
 import org.jboss.forge.aesh.commands.ClearCommand;
-import org.jboss.forge.aesh.commands.ForgeCommand;
 import org.jboss.forge.aesh.commands.ListServicesCommand;
 import org.jboss.forge.aesh.commands.StopCommand;
 import org.jboss.forge.container.AddonRegistry;
@@ -38,7 +37,7 @@ public class AeshShell
    private ConsoleOutput output;
     private String prompt = "[forge-2.0]$ ";
 
-   private List<ForgeCommand> commands;
+   private List<ShellCommand> commands;
 
    @Inject
    private ContainerControl containerControl;
@@ -52,7 +51,7 @@ public class AeshShell
        //startShell();
    }
 
-    public void addCommand(ForgeCommand command) {
+    public void addCommand(ShellCommand command) {
         command.setConsole(console);
         commands.add(command);
     }
@@ -61,23 +60,24 @@ public class AeshShell
         Settings.getInstance().setReadInputrc(false);
         Settings.getInstance().setLogging(true);
 
-        commands = new ArrayList<ForgeCommand>();
+        commands = new ArrayList<ShellCommand>();
         console = new Console();
 
         //internal commands
-        commands.add(new StopCommand(console));
-        commands.add(new ClearCommand(console));
-        commands.add(new ListServicesCommand(console, registry));
+        //commands.add(new StopCommand(console));
+        //commands.add(new ClearCommand(console));
+        //commands.add(new ListServicesCommand(console, registry));
+        commands.add(new ShellCommand(new ListServicesCommand(registry)));
     }
 
-   public void startShell() throws IOException {
+   public void startShell() throws Exception {
       prompt = "[forge-2.0]$ ";
 
        output = null;
        while ((output = console.read(prompt)) != null)
        {
            CommandLine cl = null;
-           for(ForgeCommand command : commands) {
+           for(ShellCommand command : commands) {
                try {
                    cl = command.parse(output.getBuffer());
                    if(cl != null) {

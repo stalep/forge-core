@@ -13,31 +13,32 @@ import org.jboss.aesh.cl.ParserBuilder;
 import org.jboss.aesh.complete.CompleteOperation;
 import org.jboss.aesh.console.Console;
 import org.jboss.aesh.console.ConsoleOutput;
+import org.jboss.forge.aesh.ShellCommand;
 
 import java.io.IOException;
 
 /**
  * @author <a href="mailto:stale.pedersen@jboss.org">Ståle W. Pedersen</a>
  */
-public class ClearCommand extends ForgeCommand {
+public class ClearCommand { //extends ShellCommand {
 
     private CommandLineParser parser;
 
     private String name = "clear";
 
     public ClearCommand(Console console) {
-        setConsole(console);
+        //setConsole(console);
         createParsers();
     }
 
-    @Override
+    //@Override
     public CommandLine parse(String line) throws IllegalArgumentException {
         return parser.parse(line);
     }
 
-    @Override
+    //@Override
     public void run(ConsoleOutput consoleOutput, CommandLine commandLine) throws IOException {
-        getConsole().clear();
+        //getConsole().clear();
     }
 
     public void complete(CompleteOperation completeOperation) {

@@ -3,6 +3,11 @@ package org.jboss.forge.aesh;
 import javax.inject.Inject;
 
 import junit.framework.TestCase;
+import org.jboss.aesh.cl.CommandLine;
+import org.jboss.aesh.cl.Parameter;
+import org.jboss.aesh.cl.internal.ParameterInt;
+import org.jboss.aesh.complete.CompleteOperation;
+import org.jboss.aesh.complete.Completion;
 import org.jboss.aesh.console.Config;
 import org.jboss.aesh.console.Console;
 import org.jboss.aesh.console.ConsoleOutput;
@@ -12,10 +17,12 @@ import org.jboss.aesh.edit.actions.Operation;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.forge.aesh.commands.ClearCommand;
-import org.jboss.forge.aesh.commands.ForgeCommand;
 import org.jboss.forge.aesh.commands.ListServicesCommand;
 import org.jboss.forge.aesh.commands.StopCommand;
 import org.jboss.forge.arquillian.archive.ForgeArchive;
+import org.jboss.forge.ui.UICommand;
+import org.jboss.forge.ui.UIContext;
+import org.jboss.forge.ui.UIValidationContext;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -26,7 +33,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
@@ -48,15 +54,25 @@ public class AeshAddonTest extends TestCase
    {
       ForgeArchive archive = ShrinkWrap
                .create(ForgeArchive.class)
-               .addClasses(AeshShell.class)
-              .addClass(ForgeCommand.class)
-              .addClass(StopCommand.class)
-              .addClass(ClearCommand.class)
+               .addClasses(UICommand.class)
+              .addClasses(UIContext.class)
+              .addClasses(UIValidationContext.class)
+              .addClasses(AeshShell.class)
+              .addClass(ShellCommand.class)
+              .addClass(Parameter.class)
+              .addClass(ParameterInt.class)
+              .addClass(Completion.class)
+              .addClass(Console.class)
+              .addClass(ConsoleOutput.class)
+              .addClass(CommandLine.class)
+              .addClass(CompleteOperation.class)
+              //.addClass(StopCommand.class)
+              //.addClass(ClearCommand.class)
               .addClass(FooCommand.class)
               .addClass(ListServicesCommand.class)
                .addAsLibraries(
-                        Maven.resolver().loadPomFromFile("pom.xml").resolve("org.jboss.aesh:aesh:0.28")
-                                 .withTransitivity().asFile())
+                       Maven.resolver().loadPomFromFile("pom.xml").resolve("org.jboss.aesh:aesh:0.29")
+                               .withTransitivity().asFile())
                .addAsManifestResource(EmptyAsset.INSTANCE, ArchivePaths.create("beans.xml"))
                .setAsForgeXML(new StringAsset("<addon/>"));
 
@@ -78,7 +94,7 @@ public class AeshAddonTest extends TestCase
            setupSettings(pipedInputStream, out);
 
            shell.initShell();
-           shell.addCommand(new FooCommand());
+           shell.addCommand(new ShellCommand(new FooCommand()));
 
            outputStream.write(("foo\n").getBytes());
            shell.startShell();
@@ -87,6 +103,8 @@ public class AeshAddonTest extends TestCase
 
            outputStream.write(("exit\n").getBytes());
            shell.startShell();
+
+           shell.stopShell();
        }
        catch (Exception ioe) {
            ioe.printStackTrace();
