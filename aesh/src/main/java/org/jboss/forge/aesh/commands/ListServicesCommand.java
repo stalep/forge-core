@@ -13,8 +13,11 @@ import org.jboss.forge.container.services.Remote;
 import org.jboss.forge.ui.Result;
 import org.jboss.forge.ui.UICommand;
 import org.jboss.forge.ui.UIContext;
+import org.jboss.forge.ui.UIInput;
 import org.jboss.forge.ui.UIValidationContext;
+import org.jboss.forge.ui.impl.UIInputImpl;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -29,7 +32,8 @@ import java.util.Set;
 @Remote
 public class ListServicesCommand implements UICommand {
 
-    private String name = "list-services";
+    private UIInput<String> name;
+
     private AddonRegistry registry;
 
     public ListServicesCommand(AddonRegistry registry) {
@@ -38,12 +42,16 @@ public class ListServicesCommand implements UICommand {
 
     @Override
     public void initializeUI(UIContext context) throws Exception {
-        //To change body of implemented methods use File | Settings | File Templates.
+        name = new UIInputImpl<String>("list-services", String.class);
+        name.setLabel("name");
+        name.setRequired(true);
+
+        context.getUIBuilder().add(name);
     }
 
     @Override
     public void validate(UIValidationContext context) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override

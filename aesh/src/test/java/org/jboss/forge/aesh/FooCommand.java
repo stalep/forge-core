@@ -11,7 +11,9 @@ import org.jboss.forge.container.services.Remote;
 import org.jboss.forge.ui.Result;
 import org.jboss.forge.ui.UICommand;
 import org.jboss.forge.ui.UIContext;
+import org.jboss.forge.ui.UIInput;
 import org.jboss.forge.ui.UIValidationContext;
+import org.jboss.forge.ui.impl.UIInputImpl;
 
 
 /**
@@ -21,8 +23,14 @@ import org.jboss.forge.ui.UIValidationContext;
 @Remote
 public class FooCommand implements UICommand {
 
+    private UIInput<String> name;
     @Override
     public void initializeUI(UIContext context) throws Exception {
+        name = new UIInputImpl<String>("foo", String.class);
+        name.setLabel("foo");
+        name.setRequired(true);
+
+        context.getUIBuilder().add(name);
     }
 
     @Override

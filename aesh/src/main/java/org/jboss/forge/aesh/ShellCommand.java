@@ -31,9 +31,12 @@ public class ShellCommand implements Completion {
     private Console console;
     private CommandLineParser parser;
     private UICommand command;
+    private ShellContext context;
 
-    public ShellCommand(UICommand command) {
+    public ShellCommand(UICommand command) throws Exception {
         this.command = command;
+        this.context = new ShellContext();
+        command.initializeUI(context);
         generateParser(command);
     }
 
@@ -55,12 +58,6 @@ public class ShellCommand implements Completion {
     }
 
     public void run(ConsoleOutput consoleOutput, CommandLine commandLine) throws Exception {
-        ShellContext context = new ShellContext() {
-            @Override
-            public UIBuilder getUIBuilder() {
-                return null;
-            }
-        };
         context.setCommandLine(commandLine);
         Result result = command.execute(context);
         getConsole().pushToStdOut(result.getMessage());

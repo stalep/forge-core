@@ -37,6 +37,7 @@ public class AeshShell
    private ConsoleOutput output;
     private String prompt = "[forge-2.0]$ ";
 
+
    private List<ShellCommand> commands;
 
    @Inject
@@ -56,7 +57,7 @@ public class AeshShell
         commands.add(command);
     }
 
-    public void initShell() throws IOException {
+    public void initShell() throws Exception {
         Settings.getInstance().setReadInputrc(false);
         Settings.getInstance().setLogging(true);
 
@@ -66,7 +67,6 @@ public class AeshShell
         //internal commands
         //commands.add(new StopCommand(console));
         //commands.add(new ClearCommand(console));
-        //commands.add(new ListServicesCommand(console, registry));
         commands.add(new ShellCommand(new ListServicesCommand(registry)));
     }
 

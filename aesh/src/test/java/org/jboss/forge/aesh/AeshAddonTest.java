@@ -59,6 +59,7 @@ public class AeshAddonTest extends TestCase
               .addClasses(UIValidationContext.class)
               .addClasses(AeshShell.class)
               .addClass(ShellCommand.class)
+              .addClass(ShellContext.class)
               .addClass(Parameter.class)
               .addClass(ParameterInt.class)
               .addClass(Completion.class)
@@ -66,8 +67,8 @@ public class AeshAddonTest extends TestCase
               .addClass(ConsoleOutput.class)
               .addClass(CommandLine.class)
               .addClass(CompleteOperation.class)
-              //.addClass(StopCommand.class)
-              //.addClass(ClearCommand.class)
+              .addClass(StopCommand.class)
+              .addClass(ClearCommand.class)
               .addClass(FooCommand.class)
               .addClass(ListServicesCommand.class)
                .addAsLibraries(
