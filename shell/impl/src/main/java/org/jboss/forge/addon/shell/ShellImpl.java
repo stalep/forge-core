@@ -284,18 +284,9 @@ public class ShellImpl implements Shell, UIRuntime
          }
          else
          {
-            try
-            {
-               CommandContainer exitCommand = registry.getCommand("exit", "");
-               // print a new line so we exit nicely
-               console.getShell().out().println();
-               exitCommand.getCommand().execute(
-                        new AeshCommandInvocation(ShellImpl.this.console, ControlOperator.NONE, null));
-            }
-            catch (InterruptedException | CommandNotFoundException | IOException e)
-            {
-               log.log(Level.WARNING, "Error while trying to run exit", e);
-            }
+             // print a new line so we exit nicely
+             console.getShell().out().println();
+             console.stop();
          }
       }
    }

@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 
 import org.jboss.aesh.console.Prompt;
+import org.jboss.aesh.console.command.invocation.CommandInvocation;
 import org.jboss.aesh.console.settings.Settings;
 import org.jboss.aesh.console.settings.SettingsBuilder;
 import org.jboss.forge.addon.resource.DirectoryResource;
@@ -110,8 +111,9 @@ public class RunCommand extends AbstractShellCommand
    @Override
    public Result execute(UIExecutionContext context) throws Exception
    {
-      Result result = Results.fail("Error executing script.");
+      Result result = null; //Results.fail("Error executing script.");
       Resource<?> currentResource = (Resource<?>) context.getUIContext().getInitialSelection().get();
+      ShellContext shellContext = (ShellContext) context.getUIContext();
       final UIOutput output = context.getUIContext().getProvider().getOutput();
       if (command.hasValue())
       {
@@ -155,6 +157,12 @@ public class RunCommand extends AbstractShellCommand
       }
       else
       {
+          //we need to put this command in the background so it can execute new commands
+          CommandInvocation commandInvocation = (CommandInvocation) shellContext.getAttributeMap().get(CommandInvocation.class);
+          if(commandInvocation != null)
+          {
+              commandInvocation.putProcessInBackground();
+          }
          ALL: for (String path : arguments.getValue())
          {
             List<Resource<?>> resources = new ResourcePathResolver(resourceFactory, currentResource, path).resolve();
@@ -162,57 +170,61 @@ public class RunCommand extends AbstractShellCommand
             {
                if (resource.exists())
                {
-                  final PipedOutputStream stdin = new PipedOutputStream();
-                  BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stdin));
-
-                  PrintStream stdout = new UncloseablePrintStream(output.out());
-                  PrintStream stderr = new UncloseablePrintStream(output.err());
-
-                  Settings settings = new SettingsBuilder()
-                           .inputStream(new PipedInputStream(stdin))
-                           .outputStream(stdout)
-                           .outputStreamError(stderr)
-                           .create();
-
-                  Shell scriptShell = shellFactory.createShell(((FileResource<?>) context.getUIContext()
-                           .getInitialSelection().get()).getUnderlyingResourceObject(), settings);
-
-                  scriptShell.getConsole().setPrompt(new Prompt(""));
 
                   try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                           resource.getResourceInputStream())))
-                  {
-                     long startTime = System.currentTimeMillis();
-                     while (reader.ready())
-                     {
-                        try
-                        {
-                           String line = reader.readLine();
-                           if (isComment(line))
-                           {
-                              // Skip Comments
-                              continue;
-                           }
-                           Integer timeoutValue = timeout.getValue();
-                           result = execute(scriptShell, writer, line, timeoutValue,
-                                    TimeUnit.SECONDS, startTime);
+                           resource.getResourceInputStream()))) {
+                      long startTime = System.currentTimeMillis();
+                      Shell shell = (Shell) shellContext.getAttributeMap().get(Shell.class);
+                      //lets create a listener:
+                      //gah, shell is null. george you fix? :)
+                      if (shell != null) {
+                          ScriptCommandListener listener = new ScriptCommandListener();
+                          ListenerRegistration<CommandExecutionListener> listenerRegistration = shell
+                                  .addCommandExecutionListener(listener);
 
-                           if (result != null)
-                           {
-                              if (result instanceof Failed)
-                                 break ALL;
-                           }
-                        }
-                        catch (TimeoutException e)
-                        {
-                           result = Results.fail(path + ": timed out.");
-                           break ALL;
-                        }
-                     }
-                  }
-                  finally
-                  {
-                     scriptShell.close();
+                          while (reader.ready()) {
+                              try {
+                                  String line = reader.readLine();
+                                  if (isComment(line)) {
+                                      // Skip Comments
+                                      continue;
+                                  }
+                                  if (!line.trim().isEmpty()) {
+                                      if (!line.trim().endsWith(OperatingSystemUtils.getLineSeparator()))
+                                          line = line + OperatingSystemUtils.getLineSeparator();
+
+                                      commandInvocation.getShell().out().println("EXECUTING:");
+
+                                      commandInvocation.executeCommand(line);
+                                  }
+                                  while (!listener.isExecuted()) {
+                                      if (System.currentTimeMillis() >
+                                              (startTime + TimeUnit.MILLISECONDS.convert(timeout.getValue(), TimeUnit.SECONDS))) {
+                                          throw new TimeoutException("Timeout expired waiting for command [" + line + "] to execute.");
+                                      }
+
+                                      try {
+                                          Thread.sleep(10);
+                                      }
+                                      catch (InterruptedException e) {
+                                          throw new ContainerException("Command [" + line + "] did not respond.", e);
+                                      }
+                                  }
+                                  result = listener.getResult();
+
+                                  if (result != null) {
+                                      if (result instanceof Failed)
+                                          break ALL;
+                                  }
+                              }
+                              catch (TimeoutException e) {
+                                  result = Results.fail(path + ": timed out.");
+                                  break ALL;
+                              }
+                          }
+                      }
+                      else
+                          commandInvocation.getShell().out().println("Shell is NULL :/");
                   }
                }
                else
